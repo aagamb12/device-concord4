@@ -1,0 +1,8 @@
+*.pyc
+__pycache__/
+*.log
+concord_state.json
+concord_events.jsonl
+*.db
+*.sqlite
+*.sqlite3

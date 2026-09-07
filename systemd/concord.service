@@ -1,0 +1,17 @@
+[Unit]
+Description=Concord 4 Alarm Listener
+After=network-online.target
+Wants=network-online.target
+
+
+[Service]
+Type=simple
+User=pi
+WorkingDirectory=/home/pi/device-concord4/concordsvr
+
+ExecStartPre=/bin/sh -c 'until /bin/ping -c 1 -W 1 192.168.1.250 >/dev/null 2>&1; do sleep 2; done'
+
+ExecStart=/usr/bin/python /home/pi/device-concord4/concordsvr/concordsvr.py
+
+Restart=on-failure
+RestartSec=5

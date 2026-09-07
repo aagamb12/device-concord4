@@ -1,0 +1,15 @@
+[Unit]
+Description=Concord 4 Web Dashboard
+After=network-online.target concord.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=pi
+WorkingDirectory=/home/pi
+ExecStart=/usr/bin/python3 /home/pi/concord_web.py
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
