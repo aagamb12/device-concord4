@@ -31,7 +31,7 @@ CTRL_CHARS = (ACK, NAK)
 # Timeout within which sender expects to receive ACKs, in seconds.
 #   inbound = message from us to panel
 #   outbound = message from panel to us
-ACK_TIMEOUT_INBOUND  = 0.5 
+ACK_TIMEOUT_INBOUND  = 2.0 
 ACK_TIMEOUT_OUTBOUND = 2.0 
 MAX_RESENDS = 3
 

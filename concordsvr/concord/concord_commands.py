@@ -325,8 +325,8 @@ def cmd_entry_exit_delay(msg):
           }
     flags = msg[5]
     bits54 = (flags >> 4) & 0x3 
-    bit6 = (flags >> 5) & 1
-    bit7 = (flags >> 6) & 1
+    bit6 = (flags >> 6) & 1
+    bit7 = (flags >> 7) & 1
     v = [ ]
     if bits54 == 0:
         v.append('standard')
