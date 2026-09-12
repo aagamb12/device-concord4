@@ -1555,6 +1555,100 @@ class Backend(object):
 
                 if old != mode:
 
+                    source = 'panel_external'
+
+                    confirmation_map = {
+
+                        'armed_stay': (
+                            'arm_stay',
+                            'Arm Stay confirmed by Concord'
+                        ),
+
+                        'armed_away': (
+                            'arm_away',
+                            'Arm Away confirmed by Concord'
+                        ),
+
+                        'disarmed': (
+                            'disarm',
+                            'Disarm confirmed by Concord'
+                        )
+                    }
+
+
+                    expected =                         confirmation_map.get(
+                            mode
+                        )
+
+
+                    last_command =                         self.state[
+                            'panel'
+                        ].get(
+                            'last_command'
+                        )
+
+
+                    if (
+                        expected is not None and
+                        last_command is not None and
+                        last_command.get(
+                            'status'
+                        ) == 'submitted' and
+                        last_command.get(
+                            'command'
+                        ) == expected[0]
+                    ):
+
+                        confirmed = now()
+
+                        command_id =                             int(
+                                last_command[
+                                    'id'
+                                ]
+                            )
+
+
+                        self.db.execute("""
+                            UPDATE commands
+                            SET
+                                status = 'confirmed',
+                                processed_at = ?,
+                                result = ?
+                            WHERE
+                                id = ?
+                                AND status = 'submitted'
+                        """, (
+                            confirmed,
+                            expected[1],
+                            command_id
+                        ))
+
+                        self.db.commit()
+
+
+                        last_command[
+                            'status'
+                        ] = 'confirmed'
+
+                        last_command[
+                            'time'
+                        ] = confirmed
+
+                        last_command[
+                            'result'
+                        ] = expected[1]
+
+
+                        source = 'web_ui'
+
+
+                        log.info(
+                            'Command %d confirmed: %s',
+                            command_id,
+                            expected[1]
+                        )
+
+
                     self.history(
                         'arming',
 
@@ -1575,7 +1669,10 @@ class Backend(object):
                                 old,
 
                             'new_state':
-                                mode
+                                mode,
+
+                            'source':
+                                source
                         }
                     )
 
@@ -2356,6 +2453,75 @@ class Backend(object):
                 ][
                     'connection'
                 ] = 'connected'
+
+
+                last_command =                     self.state[
+                        'panel'
+                    ].get(
+                        'last_command'
+                    )
+
+
+                if (
+                    last_command is not None and
+                    last_command.get(
+                        'command'
+                    ) == 'refresh' and
+                    last_command.get(
+                        'status'
+                    ) == 'submitted'
+                ):
+
+                    confirmed = now()
+
+                    command_id = int(
+                        last_command[
+                            'id'
+                        ]
+                    )
+
+                    result = (
+                        'Panel refresh confirmed by Concord'
+                    )
+
+
+                    self.db.execute("""
+                        UPDATE commands
+                        SET
+                            status = 'confirmed',
+                            processed_at = ?,
+                            result = ?
+                        WHERE
+                            id = ?
+                            AND status = 'submitted'
+                    """, (
+                        confirmed,
+                        result,
+                        command_id
+                    ))
+
+                    self.db.commit()
+
+
+                    last_command[
+                        'status'
+                    ] = 'confirmed'
+
+                    last_command[
+                        'time'
+                    ] = confirmed
+
+                    last_command[
+                        'result'
+                    ] = result
+
+
+                    log.info(
+                        'Command %d confirmed: %s',
+                        command_id,
+                        result
+                    )
+
 
                 log.info(
                     'Panel state is active'
